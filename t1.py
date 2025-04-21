@@ -1,11 +1,7 @@
-// Date and Time Published
-var getDateTimePublished = WDS.browser.findElement(org.openqa.selenium.By.xpath("(//div[@class])"));
+var getDateTimePublished = WDS.browser.findElement(org.openqa.selenium.By.xpath("(//div[@class])")).getText().trim();
 WDS.log.info("Date and Time Published - " + getDateTimePublished);
-java.lang.Thread.sleep(2000);
 
-var actualTime = getDateTimePublished.getText().trim();
-
-if(actualTime != null && actualTime.length() > 0){
+if (getDateTimePublished != null && getDateTimePublished.length() > 0) {
 
     var format1 = new java.text.SimpleDateFormat("MM/dd/yyyy hh:mm a");
     var format2 = new java.text.SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
@@ -14,13 +10,13 @@ if(actualTime != null && actualTime.length() > 0){
     var parsedActual = null;
 
     try {
-        parsedActual = format1.parse(actualTime);
+        parsedActual = format1.parse(getDateTimePublished);
     } catch(e1) {
         try {
-            parsedActual = format2.parse(actualTime);
+            parsedActual = format2.parse(getDateTimePublished);
         } catch(e2) {
             try {
-                parsedActual = format3.parse(actualTime);
+                parsedActual = format3.parse(getDateTimePublished);
             } catch(e3) {
                 parsedActual = null;
             }
@@ -30,27 +26,37 @@ if(actualTime != null && actualTime.length() > 0){
     if (parsedActual != null) {
         var now = new Date();
         var diffMillis = Math.abs(now.getTime() - parsedActual.getTime());
-        var diffMins = diffMillis / (1000 * 60);
 
-        if (diffMins <= 3) {
+        // Convert diffMillis to hours, minutes, and seconds
+        var diffSecs = Math.floor(diffMillis / 1000); // Total seconds
+        var hours = Math.floor(diffSecs / 3600); // Extract hours
+        var minutes = Math.floor((diffSecs % 3600) / 60); // Extract minutes
+        var seconds = diffSecs % 60; // Extract seconds
+
+        // Format the time difference as HH:mm:ss
+        var formattedTimeDiff = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        WDS.log.info("Time difference (formatted): " + formattedTimeDiff);
+
+        // Check if the difference is within 3 minutes (180 seconds)
+        if (diffMillis <= 3 * 60 * 1000) {
             WDS.sampleResult.successful = true;
             WDS.sampleResult.responseMessage = "Results returned";
-            WDS.log.info("Pass - Results returned :"+ actualTime);
+            WDS.log.info("Pass - Results returned: " + getDateTimePublished);
         } else {
             WDS.sampleResult.successful = false;
             WDS.sampleResult.responseMessage = "Time difference too large";
-            WDS.log.info("Fail - Time mismatch (difference > 3 min): " + actualTime);
+            WDS.log.info("Fail - Time mismatch (difference > 3 min): " + getDateTimePublished);
         }
     } else {
         WDS.sampleResult.successful = false;
         WDS.sampleResult.responseMessage = "Unable to parse date-time";
-        WDS.log.info("Fail - Invalid time format: " + actualTime);
+        WDS.log.info("Fail - Invalid time format: " + getDateTimePublished);
     }
 
-}else{
+} else {
     WDS.sampleResult.successful = false;
     WDS.sampleResult.responseMessage = "There were no results returned";
-    WDS.log.info("Fail - There were no results returned :"+actualTime);
+    WDS.log.info("Fail - There were no results returned: " + getDateTimePublished);
 }
 
 java.lang.Thread.sleep(3000);
