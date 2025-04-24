@@ -1,3 +1,17 @@
+Set WshShell = CreateObject("WScript.Shell")
+Set args = WScript.Arguments
+
+For i = 0 To args.Count - 1
+    WScript.Sleep 1000
+    WshShell.SendKeys args(i)
+    WScript.Sleep 1000
+    WshShell.SendKeys "{ENTER}"
+Next
+
+
+
+
+
 var vbs = WDS.vars.get("vbsPath");
 var file1 = WDS.vars.get("filepath1");
 var file2 = WDS.vars.get("filepath2");
