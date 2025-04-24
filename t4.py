@@ -1,3 +1,52 @@
+
+Set WshShell = CreateObject("WScript.Shell")
+Set fso = CreateObject("Scripting.FileSystemObject")
+
+allowedExts = Array("txt", "pdf", "xls", "doc", "xlsx", "docx", "ppt", "pptx", "rtf", "zip", "xml")
+fileString = ""
+
+' Validate each file and build the input string
+For i = 0 To WScript.Arguments.Count - 1
+    filePath = WScript.Arguments(i)
+    fileExt = LCase(fso.GetExtensionName(filePath))
+    isValid = False
+
+    For Each ext In allowedExts
+        If fileExt = ext Then
+            isValid = True
+            Exit For
+        End If
+    Next
+
+    If Not isValid Then
+        WScript.Quit 1 ' Exit if any file is invalid
+    End If
+
+    ' Add quotes around each file path
+    If i = 0 Then
+        fileString = Chr(34) & filePath & Chr(34)
+    Else
+        fileString = fileString & " " & Chr(34) & filePath & Chr(34)
+    End If
+Next
+
+' Send the full quoted string at once
+WScript.Sleep 1000
+WshShell.SendKeys fileString
+WScript.Sleep 1000
+WshShell.SendKeys "{ENTER}"
+
+
+
+
+
+
+
+
+
+
+
+
 // Combine both file paths in double quotes separated by space
 var fullPath = '"' + file1 + '" "' + file2 + '"';
 
