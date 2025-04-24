@@ -1,3 +1,16 @@
+// Combine both file paths in double quotes separated by space
+var fullPath = '"' + file1 + '" "' + file2 + '"';
+
+// Call VBScript to handle file dialog
+var vbsPath = "C:\\Users\\YourName\\upload.vbs";
+var command = 'wscript "' + vbsPath + '" "' + fullPath + '"';
+
+WDS.log.info("Executing command: " + command);
+
+
+
+
+
 Set WshShell = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
 
