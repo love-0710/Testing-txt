@@ -1,3 +1,12 @@
+@echo off
+:: Ensure AutoHotkey is installed and the AHK script path is correct
+"C:\Program Files\AutoHotkey\AutoHotkey.exe" "C:\Path\To\login_execute_save.ahk"
+pause
+
+
+
+
+
 ; Launch SQLDbx
 Run, C:\Path\To\SQLDbx.exe
 WinWait, SQLDbx - Login
