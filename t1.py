@@ -1,19 +1,16 @@
-import java.sql.ResultSet
 import java.io.FileWriter
 import java.io.BufferedWriter
 
-// Get the result set object
-def rs = prev.getResultSet()
-
+def rs = vars.getObject("ResultSet")
 if (rs == null) {
-    log.error("ResultSet is NULL - check JDBC and JDBC Sampler connection.")
+    log.error("ResultSet is null! Make sure 'Store as Object' is checked in JDBC Request.")
     return
 }
 
 def meta = rs.getMetaData()
 int colCount = meta.getColumnCount()
 
-// Find column index for 'email_subjct'
+// Find column index for email_subjct
 int targetIndex = -1
 for (int i = 1; i <= colCount; i++) {
     if (meta.getColumnLabel(i).equalsIgnoreCase("email_subjct")) {
@@ -22,13 +19,12 @@ for (int i = 1; i <= colCount; i++) {
     }
 }
 
-// Prepare to write to CSV
-def outputFile = new File("C:\\Users\\practice_project\\JMeter\\email_subjects.csv")
-def writer = new BufferedWriter(new FileWriter(outputFile))
+// Write to CSV
+def file = new File("C:\\Users\\practice_project\\JMeter\\email_subjects.csv")
+def writer = new BufferedWriter(new FileWriter(file))
 
 if (targetIndex == -1) {
-    log.error("Column 'email_subjct' not found in ResultSet.")
-    writer.write("email_subjct not found\n")
+    writer.write("ERROR: email_subjct column not found\n")
 } else {
     writer.write("email_subjct\n")
     while (rs.next()) {
@@ -37,5 +33,6 @@ if (targetIndex == -1) {
         writer.newLine()
     }
 }
+
 writer.close()
-log.info("Saved email_subjct values to CSV.")
+log.info("email_subjects.csv created successfully.")
