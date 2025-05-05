@@ -2,19 +2,23 @@
 setlocal enabledelayedexpansion
 
 :: Change directory to JMeter bin
-cd "C:\Users\practice_project\jmeter\apache-jmeter-5.6.3\bin"
+cd /d "C:\Users\practice_project\jmeter\apache-jmeter-5.6.3\bin"
 
 :: List of script names (without extension)
 set scripts=interactiveview loginFlow paymentTest searchTest checkoutFlow
 
-:: Loop through each script and call a subroutine
-for %%s in (%scripts%) do call :runScript %%s
+:: Loop through each script and call subroutine
+for %%s in (%scripts%) do (
+    call :runScript %%s
+)
 
 goto :end
 
-:: ---------- Subroutine ----------
+:: Subroutine to run JMeter script
 :runScript
 set scriptName=%1
+
+:: Get timestamp
 set timestamp=%date:~10,4%%date:~4,2%%date:~7,2%_%time:~0,2%%time:~3,2%%time:~6,2%
 set timestamp=%timestamp: =0%
 
@@ -30,6 +34,7 @@ exit /b
 :end
 endlocal
 pause
+
 
 
 
