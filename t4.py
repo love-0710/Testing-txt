@@ -1,33 +1,19 @@
 @echo off
-setlocal enabledelayedexpansion
+C:
+cd C:\Users\practice_project\jmeter\apache-jmeter-5.6.3\bin
 
-:: Change directory to JMeter bin
-cd /d "C:\Users\practice_project\jmeter\apache-jmeter-5.6.3\bin"
+set scriptNames=interactiveview script2 another_test final_script yet_another
 
-:: List of script names (without extension)
-set scripts=interactiveview loginFlow paymentTest searchTest checkoutFlow
+for %%scriptName in (%scriptNames%) do (
+    echo Running script: %%scriptName%%.jmx
+    set timestamp=%date:~10,4%_%date:~4,2%_%date:~7,2%_%time:~0,2%%time:~3,2%%time:~6,2%
+    set logFile=C:\Users\practice_project\JMeterMySS\JMeterLogs\%%scriptName%%_%timestamp%_Report.csv
+    set reportFolder=C:\Users\practice_project\JMeterMySS\JMeterReports\%%scriptName%%_%timestamp%_Report
 
-:: Loop through each script
-for %%s in (%scripts%) do (
-    call :runScript %%s
+    jmeter -n -t "C:\Users\practice_project\JMeterMySS\JMeterScripts\%%scriptName%%.jmx" -l "%logFile%" -e -o "%reportFolder%"
+    echo Report and log saved for %%scriptName%%.jmx
+    echo.
 )
 
-goto :eof
-
-:runScript
-setlocal
-set "scriptName=%~1"
-
-:: Generate timestamp
-set "timestamp=%date:~10,4%%date:~4,2%%date:~7,2%_%time:~0,2%%time:~3,2%%time:~6,2%"
-set "timestamp=%timestamp: =0%"
-
-echo Running %scriptName% at %timestamp%
-
-:: Run JMeter command
-jmeter -n -t "C:\Users\practice_project\JMeterMySS\JMeterScripts\%scriptName%.jmx" ^
- -l "C:\Users\practice_project\JMeterMySS\JMeterLogs\%scriptName%_%timestamp%_Report.csv" ^
- -e -o "C:\Users\practice_project\JMeterMySS\JMeterReports\%scriptName%_%timestamp%_Report"
-
-endlocal
-exit /b
+echo All scripts have been executed.
+pause
