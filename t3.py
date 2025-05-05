@@ -43,58 +43,76 @@ pause
 @echo off
 setlocal enabledelayedexpansion
 
-:: Change to JMeter bin directory
-cd "C:\Users\practice_project\jmeter\apache-jmeter-5.6.3\bin"
+:: Move to JMeter bin directory
+cd /d "C:\Users\practice_project\jmeter\apache-jmeter-5.6.3\bin"
 
-:: List your test scripts
+:: List of JMeter script names (without .jmx)
 set scripts=interactiveview loginFlow paymentTest searchTest checkoutFlow
 
-:: Create or clear the failure report file
-echo Failure Report - %date% %time% > "C:\Users\practice_project\JMeterMySS\failure_report.txt"
-echo ----------------------------------------- >> "C:\Users\practice_project\JMeterMySS\failure_report.txt"
+:: Set log folder
+set logBase=C:\Users\practice_project\JMeterMySS\JMeterLogs
+set reportBase=C:\Users\practice_project\JMeterMySS\JMeterReports
 
-:: Loop through all script names
+:: Create/clear failure report
+echo Failure Report - %date% %time% > "%logBase%\failure_report.txt"
+echo ----------------------------- >> "%logBase%\failure_report.txt"
+
+:: Loop through each script
 for %%s in (%scripts%) do (
-    set scriptName=%%s
-    set attempts=1
+    set "scriptName=%%s"
+    set "attempts=1"
 
     :retry
-    set timestamp=%date:~10,4%%date:~4,2%%date:~7,2%_%time:~0,2%%time:~3,2%%time:~6,2%
-    set timestamp=!timestamp: =0!
-    set logFile="C:\Users\practice_project\JMeterMySS\JMeterLogs\!scriptName!_!timestamp!_Report.csv"
-    set reportDir="C:\Users\practice_project\JMeterMySS\JMeterReports\!scriptName!_!timestamp!_Report"
+    call :GetTimestamp
+    set "logFile=%logBase%\!scriptName!_!timestamp!_Report.csv"
+    set "reportDir=%reportBase%\!scriptName!_!timestamp!_Report"
 
     echo Running script !scriptName! (Attempt !attempts!)...
 
     jmeter -n -t "C:\Users\practice_project\JMeterMySS\JMeterScripts\!scriptName!.jmx" ^
-        -l !logFile! -e -o !reportDir!
+        -l "!logFile!" -e -o "!reportDir!"
 
-    :: Count total and failed samples
-    set total=0
-    set failed=0
-    for /f "tokens=1,3 delims=," %%a in ('findstr /r /c:"^[0-9]" !logFile!') do (
+    if not exist "!logFile!" (
+        echo !scriptName!: Log file was not created, JMeter error. >> "%logBase%\failure_report.txt"
+        goto nextscript
+    )
+
+    set "total=0"
+    set "failed=0"
+
+    for /f "tokens=1,3 delims=," %%a in ('findstr /r /c:"^[0-9]" "!logFile!"') do (
         set /a total+=1
         if "%%b" NEQ "true" set /a failed+=1
     )
 
     if !failed! GTR 0 (
-        echo Failed Samples: !failed! of !total!
-        echo Script !scriptName! - Failed Samples: !failed! of !total! >> "C:\Users\practice_project\JMeterMySS\failure_report.txt"
+        echo !scriptName! failed with !failed! errors out of !total!.
+        echo !scriptName!: !failed! failed samples out of !total! >> "%logBase%\failure_report.txt"
+
         if !attempts! LSS 3 (
             set /a attempts+=1
-            echo Retrying script !scriptName!... (Attempt !attempts!)
+            echo Retrying !scriptName!... (Attempt !attempts!)
             goto retry
         ) else (
-            echo Script !scriptName! failed after 3 attempts. >> "C:\Users\practice_project\JMeterMySS\failure_report.txt"
+            echo !scriptName! failed after 3 attempts. >> "%logBase%\failure_report.txt"
         )
     ) else (
-        echo Script !scriptName! passed successfully with 100%% success.
-        echo Script !scriptName! - Passed successfully with 100%% success. >> "C:\Users\practice_project\JMeterMySS\failure_report.txt"
+        echo !scriptName! passed successfully.
+        echo !scriptName!: Passed 100%% >> "%logBase%\failure_report.txt"
     )
+
+    :nextscript
 )
 
 endlocal
 pause
+exit /b
+
+:GetTimestamp
+:: Clean timestamp without spaces or colons
+set "timestamp=%date:~10,4%%date:~4,2%%date:~7,2%_%time:~0,2%%time:~3,2%%time:~6,2%"
+set "timestamp=!timestamp: =0!"
+exit /b
 
 
 
