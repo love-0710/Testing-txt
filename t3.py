@@ -7,17 +7,27 @@ cd "C:\Users\practice_project\jmeter\apache-jmeter-5.6.3\bin"
 :: List of script names (without extension)
 set scripts=interactiveview loginFlow paymentTest searchTest checkoutFlow
 
-:: Loop through each script
-for %%s in (%scripts%) do (
-    set scriptName=%%s
-    set timestamp=%date:~10,4%%date:~4,2%%date:~7,2%_%time:~0,2%%time:~3,2%%time:~6,2%
-    set timestamp=!timestamp: =0!
+:: Loop through each script and call a subroutine
+for %%s in (%scripts%) do call :runScript %%s
 
-    jmeter -n -t "C:\Users\practice_project\JMeterMySS\JMeterScripts\!scriptName!.jmx" ^
-    -l "C:\Users\practice_project\JMeterMySS\JMeterLogs\!scriptName!_!timestamp!_Report.csv" ^
-    -e -o "C:\Users\practice_project\JMeterMySS\JMeterReports\!scriptName!_!timestamp!_Report"
-)
+goto :end
 
+:: ---------- Subroutine ----------
+:runScript
+set scriptName=%1
+set timestamp=%date:~10,4%%date:~4,2%%date:~7,2%_%time:~0,2%%time:~3,2%%time:~6,2%
+set timestamp=%timestamp: =0%
+
+echo Running %scriptName%...
+
+jmeter -n -t "C:\Users\practice_project\JMeterMySS\JMeterScripts\%scriptName%.jmx" ^
+    -l "C:\Users\practice_project\JMeterMySS\JMeterLogs\%scriptName%_%timestamp%_Report.csv" ^
+    -e -o "C:\Users\practice_project\JMeterMySS\JMeterReports\%scriptName%_%timestamp%_Report"
+
+echo Done with %scriptName%
+exit /b
+
+:end
 endlocal
 pause
 
