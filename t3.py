@@ -1,63 +1,22 @@
-#NoEnv
-SendMode Input
-SetWorkingDir %A_Desktop%
-SetTitleMatchMode, 2
+@echo off
+setlocal enabledelayedexpansion
 
-; Step 1: Open Paint and draw
-Run, mspaint.exe
-WinWaitActive, ahk_class MSPaintApp
-Sleep, 1000
-MouseMove, 300, 300
-MouseDown("left")
-MouseMove, 400, 300, 10
-MouseMove, 400, 400, 10
-MouseMove, 300, 400, 10
-MouseMove, 300, 300, 10
-MouseUp("left")
-Sleep, 1000
-Send, ^s
-Sleep, 1000
-Send, DemoDrawing.png{Enter}
-Sleep, 1000
-Send, !{F4} ; Close Paint
+:: Change directory to JMeter bin
+cd "C:\Users\practice_project\jmeter\apache-jmeter-5.6.3\bin"
 
-; Step 2: Open Notepad and write text
-Run, notepad.exe
-WinWaitActive, ahk_class Notepad
-Sleep, 1000
-Send, Hello, this is AutoHotkey demo script!
-Sleep, 1000
-Send, ^s
-Sleep, 500
-Send, DemoNote.txt{Enter}
-Sleep, 1000
-Send, !{F4}
+:: List of script names (without extension)
+set scripts=interactiveview loginFlow paymentTest searchTest checkoutFlow
 
-; Step 3: Open Microsoft Teams (simulate if not installed)
-Run, %ProgramFiles%\Microsoft\Teams\current\Teams.exe
-Sleep, 5000
-; If Teams is not installed, skip safely
+:: Loop through each script
+for %%s in (%scripts%) do (
+    set scriptName=%%s
+    set timestamp=%date:~10,4%%date:~4,2%%date:~7,2%_%time:~0,2%%time:~3,2%%time:~6,2%
+    set timestamp=!timestamp: =0!
 
-; Step 4: Open a folder and create subfolder
-Run, explorer.exe %A_Desktop%
-WinWaitActive, ahk_class CabinetWClass
-Sleep, 1000
-Send, ^n
-Sleep, 500
-Send, Demo_Folder{Enter}
-Sleep, 500
-Send, {Enter} ; open the new folder
-Sleep, 1000
-Send, ^n ; new file inside folder
-Sleep, 500
-Send, demo.txt{Enter}
+    jmeter -n -t "C:\Users\practice_project\JMeterMySS\JMeterScripts\!scriptName!.jmx" ^
+    -l "C:\Users\practice_project\JMeterMySS\JMeterLogs\!scriptName!_!timestamp!_Report.csv" ^
+    -e -o "C:\Users\practice_project\JMeterMySS\JMeterReports\!scriptName!_!timestamp!_Report"
+)
 
-
-
-
-
-
-
-
-
-C:\Program Files\AutoHotkey\AutoHotkey.exe
+endlocal
+pause
