@@ -1,39 +1,37 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: Change to JMeter bin directory (use /d to switch drives too)
+:: Change directory to JMeter bin
 cd /d "C:\Users\practice_project\jmeter\apache-jmeter-5.6.3\bin"
 
-:: List your test scripts (space-separated)
+:: List of script names (without extension)
 set scripts=interactiveview loginFlow paymentTest searchTest checkoutFlow
 
-:: Save all script names into a temp file (avoids delayed expansion issues in loops)
-(for %%s in (%scripts%) do @echo %%s) > tmplist.txt
+:: Loop through each script
+for %%s in (%scripts%) do (
+    set "scriptName=%%s"
 
-:: Read one line at a time and call subroutine
-for /f %%s in (tmplist.txt) do (
-    call :runScript %%s
+    call :runScript !scriptName!
 )
 
-del tmplist.txt
+endlocal
+pause
 goto :eof
 
-
 :runScript
-set "scriptName=%1"
+setlocal
 
-:: Get timestamp and normalize spacing
+set "scriptName=%~1"
 set "timestamp=%date:~10,4%%date:~4,2%%date:~7,2%_%time:~0,2%%time:~3,2%%time:~6,2%"
 set "timestamp=%timestamp: =0%"
 
-echo.
-echo Running JMeter script: %scriptName% at %timestamp%
+echo Running %scriptName% at %timestamp%
 
 jmeter -n -t "C:\Users\practice_project\JMeterMySS\JMeterScripts\%scriptName%.jmx" ^
     -l "C:\Users\practice_project\JMeterMySS\JMeterLogs\%scriptName%_%timestamp%_Report.csv" ^
     -e -o "C:\Users\practice_project\JMeterMySS\JMeterReports\%scriptName%_%timestamp%_Report"
 
-echo Finished %scriptName%
+endlocal
 exit /b
 
 
