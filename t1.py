@@ -1,9 +1,16 @@
 public void selectDRValue(String label, String dateRange) {
-    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+    try {
+        // Wait for the page to fully load
+        new WebDriverWait(driver, Duration.ofSeconds(10)).until(webDriver ->
+            Objects.equals(
+                ((JavascriptExecutor) webDriver).executeScript("return document.readyState"),
+                "complete"
+            )
+        );
 
-    // Step 1: Open the calendar
-    WebElement dateInput = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@class='datepicker-base-input']")));
-    dateInput.click();
+        // Click the date range field using your XPath
+        WebElement objField = driver.findElement(By.xpath("//*[@class='datepicker-base-input']"));
+        comMethods.clickWebElement(objField, "Date Range Field", false);
 
     // Step 2: Split and parse date range
     String[] parts = dateRange.split(" - ");
