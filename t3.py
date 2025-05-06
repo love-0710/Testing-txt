@@ -1,3 +1,21 @@
+System.out.println("Raw Date Range Input: [" + dateRange + "]");
+
+// Normalize all spaces to regular space
+dateRange = dateRange.replaceAll("\\u00A0", " ");  // Replace non-breaking space
+dateRange = dateRange.replaceAll("\\s+", " ").trim();  // Normalize whitespace
+
+String[] parts = dateRange.split("\\s*(?i)to\\s*");
+
+if (parts.length != 2) {
+    throw new RuntimeException("Failed to parse date range: Expected format 'MM/dd/yyyy to MM/dd/yyyy'. Got: " + dateRange);
+}
+
+
+
+
+
+
+
 public void selectDRValue(String label, String dateRange) {
     try {
         // Use the user-provided XPath to open the calendar
