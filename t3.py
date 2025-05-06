@@ -1,202 +1,99 @@
-@echo off
-setlocal enabledelayedexpansion
-
-:: Change directory to JMeter bin
-cd /d "C:\Users\practice_project\jmeter\apache-jmeter-5.6.3\bin"
-
-:: List of script names (without extension)
-set scripts=interactiveview loginFlow paymentTest searchTest checkoutFlow
-
-:: Loop through each script
-for %%s in (%scripts%) do (
-    set "scriptName=%%s"
-
-    call :runScript !scriptName!
-)
-
-endlocal
-pause
-goto :eof
-
-:runScript
-setlocal
-
-set "scriptName=%~1"
-set "timestamp=%date:~10,4%%date:~4,2%%date:~7,2%_%time:~0,2%%time:~3,2%%time:~6,2%"
-set "timestamp=%timestamp: =0%"
-
-echo Running %scriptName% at %timestamp%
-
-jmeter -n -t "C:\Users\practice_project\JMeterMySS\JMeterScripts\%scriptName%.jmx" ^
-    -l "C:\Users\practice_project\JMeterMySS\JMeterLogs\%scriptName%_%timestamp%_Report.csv" ^
-    -e -o "C:\Users\practice_project\JMeterMySS\JMeterReports\%scriptName%_%timestamp%_Report"
-
-endlocal
-exit /b
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@echo off
-setlocal enabledelayedexpansion
-
-:: Move to JMeter bin directory
-cd /d "C:\Users\practice_project\jmeter\apache-jmeter-5.6.3\bin"
-
-:: List of JMeter script names (without .jmx)
-set scripts=interactiveview loginFlow paymentTest searchTest checkoutFlow
-
-:: Set log folder
-set logBase=C:\Users\practice_project\JMeterMySS\JMeterLogs
-set reportBase=C:\Users\practice_project\JMeterMySS\JMeterReports
-
-:: Create/clear failure report
-echo Failure Report - %date% %time% > "%logBase%\failure_report.txt"
-echo ----------------------------- >> "%logBase%\failure_report.txt"
-
-:: Loop through each script
-for %%s in (%scripts%) do (
-    set "scriptName=%%s"
-    set "attempts=1"
-
-    :retry
-    call :GetTimestamp
-    set "logFile=%logBase%\!scriptName!_!timestamp!_Report.csv"
-    set "reportDir=%reportBase%\!scriptName!_!timestamp!_Report"
-
-    echo Running script !scriptName! (Attempt !attempts!)...
-
-    jmeter -n -t "C:\Users\practice_project\JMeterMySS\JMeterScripts\!scriptName!.jmx" ^
-        -l "!logFile!" -e -o "!reportDir!"
-
-    if not exist "!logFile!" (
-        echo !scriptName!: Log file was not created, JMeter error. >> "%logBase%\failure_report.txt"
-        goto nextscript
-    )
-
-    set "total=0"
-    set "failed=0"
-
-    for /f "tokens=1,3 delims=," %%a in ('findstr /r /c:"^[0-9]" "!logFile!"') do (
-        set /a total+=1
-        if "%%b" NEQ "true" set /a failed+=1
-    )
-
-    if !failed! GTR 0 (
-        echo !scriptName! failed with !failed! errors out of !total!.
-        echo !scriptName!: !failed! failed samples out of !total! >> "%logBase%\failure_report.txt"
-
-        if !attempts! LSS 3 (
-            set /a attempts+=1
-            echo Retrying !scriptName!... (Attempt !attempts!)
-            goto retry
-        ) else (
-            echo !scriptName! failed after 3 attempts. >> "%logBase%\failure_report.txt"
-        )
-    ) else (
-        echo !scriptName! passed successfully.
-        echo !scriptName!: Passed 100%% >> "%logBase%\failure_report.txt"
-    )
-
-    :nextscript
-)
-
-endlocal
-pause
-exit /b
-
-:GetTimestamp
-:: Clean timestamp without spaces or colons
-set "timestamp=%date:~10,4%%date:~4,2%%date:~7,2%_%time:~0,2%%time:~3,2%%time:~6,2%"
-set "timestamp=!timestamp: =0!"
-exit /b
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@echo off
-setlocal enabledelayedexpansion
-
-:: Change to JMeter bin directory
-cd "C:\Users\practice_project\jmeter\apache-jmeter-5.6.3\bin"
-
-:: List your test scripts
-set scripts=interactiveview loginFlow paymentTest searchTest checkoutFlow
-
-:: Loop through all script names
-for %%s in (%scripts%) do (
-    set scriptName=%%s
-    set attempts=1
-
-    :retry
-    set timestamp=%date:~10,4%%date:~4,2%%date:~7,2%_%time:~0,2%%time:~3,2%%time:~6,2%
-    set timestamp=!timestamp: =0!
-    set logFile="C:\Users\practice_project\JMeterMySS\JMeterLogs\!scriptName!_!timestamp!_Report.csv"
-    set reportDir="C:\Users\practice_project\JMeterMySS\JMeterReports\!scriptName!_!timestamp!_Report"
-
-    echo Running script !scriptName! (Attempt !attempts!)...
-
-    jmeter -n -t "C:\Users\practice_project\JMeterMySS\JMeterScripts\!scriptName!.jmx" ^
-        -l !logFile! -e -o !reportDir!
-
-    :: Count total and failed samples
-    set total=0
-    set failed=0
-    for /f "tokens=1,3 delims=," %%a in ('findstr /r /c:"^[0-9]" !logFile!') do (
-        set /a total+=1
-        if "%%b" NEQ "true" set /a failed+=1
-    )
-
-    if !failed! GTR 0 (
-        echo Failed Samples: !failed! of !total!
-        if !attempts! LSS 3 (
-            set /a attempts+=1
-            echo Retrying script !scriptName!... (Attempt !attempts!)
-            goto retry
-        ) else (
-            echo Script !scriptName! failed after 3 attempts.
-        )
-    ) else (
-        echo Script !scriptName! passed successfully with 100%% success.
-    )
-)
-
-endlocal
-pause
+public void selectDRValue(String label, String dateRange) {
+    try {
+        // Use the user-provided XPath to open the calendar
+        new WebDriverWait(driver, Duration.ofSeconds(10)).until(
+            webDriver -> Objects.equals(
+                ((JavascriptExecutor) webDriver).executeScript("return document.readyState"), "complete"
+            )
+        );
+
+        // Click the Date Range input field to open calendar
+        WebElement dateInput = new WebDriverWait(driver, Duration.ofSeconds(10)).until(
+            ExpectedConditions.elementToBeClickable(By.xpath("//*[@class='datepicker-base-input']"))
+        );
+        dateInput.click();
+        System.out.println("The 'Date Range Field' has been clicked");
+
+        // Split and parse the date range
+        String[] parts = dateRange.split("to");
+        String start = parts[0].trim();
+        String end = parts[1].trim();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
+        Date startDate = sdf.parse(start);
+        Date endDate = sdf.parse(end);
+
+        // Select both start and end dates
+        selectDateFromCalendar(startDate);
+        selectDateFromCalendar(endDate);
+
+    } catch (Exception e) {
+        throw new RuntimeException("Failed to select date range: " + e.getMessage());
+    }
+}
+
+
+
+
+
+
+
+private void selectDateFromCalendar(Date date) {
+    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+    SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM", Locale.ENGLISH);  // e.g., April
+    SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy", Locale.ENGLISH);   // e.g., 2025
+    SimpleDateFormat dayFormat = new SimpleDateFormat("d", Locale.ENGLISH);       // e.g., 12
+
+    String targetMonth = monthFormat.format(date);
+    int targetYear = Integer.parseInt(yearFormat.format(date));
+    String targetDay = dayFormat.format(date);
+
+    // Loop to navigate calendar until date appears on either panel
+    while (true) {
+        // Get left panel month/year
+        String leftHeader = wait.until(ExpectedConditions.visibilityOfElementLocated(
+            By.xpath("//*[@class='design2-customCalendar-range-part design2-customCalendar-range-left']//div[contains(@class,'design2-customCalendar-header')]")
+        )).getText().trim();
+
+        // Get right panel month/year
+        String rightHeader = wait.until(ExpectedConditions.visibilityOfElementLocated(
+            By.xpath("//*[@class='design2-customCalendar-range-part design2-customCalendar-range-right']//div[contains(@class,'design2-customCalendar-header')]")
+        )).getText().trim();
+
+        // Parse month/year from headers
+        String[] leftParts = leftHeader.split(" ");
+        String[] rightParts = rightHeader.split(" ");
+        String leftMonth = leftParts[0];
+        int leftYear = Integer.parseInt(leftParts[1]);
+        String rightMonth = rightParts[0];
+        int rightYear = Integer.parseInt(rightParts[1]);
+
+        // Click if match found in either panel
+        if (leftMonth.equalsIgnoreCase(targetMonth) && leftYear == targetYear) {
+            String xpathDay = "//*[@class='design2-customCalendar-range-part design2-customCalendar-range-left']//td[normalize-space()='" + targetDay + "']";
+            wait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpathDay))).click();
+            return;
+        } else if (rightMonth.equalsIgnoreCase(targetMonth) && rightYear == targetYear) {
+            String xpathDay = "//*[@class='design2-customCalendar-range-part design2-customCalendar-range-right']//td[normalize-space()='" + targetDay + "']";
+            wait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpathDay))).click();
+            return;
+        }
+
+        // Navigate based on target year/month
+        if (leftYear > targetYear || (leftYear == targetYear && isTargetMonthBefore(leftMonth, targetMonth))) {
+            driver.findElement(By.xpath("//*[@class='design2-customCalendar-prev-month-btn']")).click();
+        } else {
+            driver.findElement(By.xpath("//*[@class='design2-customCalendar-next-month-btn']")).click();
+        }
+    }
+}
+
+// Helper to compare month positions
+private boolean isTargetMonthBefore(String currentMonth, String targetMonth) {
+    List<String> months = Arrays.asList(
+        "January", "February", "March", "April", "May", "June", 
+        "July", "August", "September", "October", "November", "December"
+    );
+    return months.indexOf(targetMonth) < months.indexOf(currentMonth);
+}
