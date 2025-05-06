@@ -1,32 +1,43 @@
 public void selectDRValue(String label, String dateRange) {
     try {
-        // Wait for the page to fully load
-        new WebDriverWait(driver, Duration.ofSeconds(10)).until(webDriver ->
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+        // Wait for page to load completely
+        wait.until(webDriver ->
             Objects.equals(
                 ((JavascriptExecutor) webDriver).executeScript("return document.readyState"),
                 "complete"
             )
         );
 
-        // Click the date range field using your XPath
+        // NEW: Wait for spinner overlay to disappear
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath("//*[contains(@class,'spinnerOverlax')]")));
+
+        // Click on date input field using your method
         WebElement objField = driver.findElement(By.xpath("//*[@class='datepicker-base-input']"));
         comMethods.clickWebElement(objField, "Date Range Field", false);
 
-    // Step 2: Split and parse date range
-    String[] parts = dateRange.split(" - ");
-    String start = parts[0].trim();
-    String end = parts[1].trim();
+        // Parse start and end date
+        String[] parts = dateRange.split("to");
+        String start = parts[0].trim();
+        String end = parts[1].trim();
 
-    try {
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
         Date startDate = sdf.parse(start);
         Date endDate = sdf.parse(end);
 
+        // Select the start date
         selectDateFromCalendar(startDate);
+
+        // Reopen calendar if needed for end date
+        objField = driver.findElement(By.xpath("//*[@class='datepicker-base-input']"));
+        comMethods.clickWebElement(objField, "Date Range Field", false);
+
+        // Select the end date
         selectDateFromCalendar(endDate);
 
     } catch (Exception e) {
-        throw new RuntimeException("Failed to parse or select dates: " + e.getMessage(), e);
+        throw new RuntimeException("Failed to select date range: " + e.getMessage());
     }
 }
 
