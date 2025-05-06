@@ -4,6 +4,40 @@ private LocalDate parseMonthYear(String rawText) {
     String fixedText = rawText.replaceAll("(?i)(January|February|March|April|May|June|July|August|September|October|November|December)(\\d{4})", "$1 $2");
     System.out.println("Fixed text after replaceAll: [" + fixedText + "]");
 
+    DateTimeFormatter monthYearFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH); // Corrected pattern (lowercase 'y')
+    LocalDate parsedDate = null;
+    try {
+        parsedDate = LocalDate.parse(fixedText, monthYearFormatter); // Parse fixedText directly
+        System.out.println("Successfully parsed to LocalDate for comparison: " + parsedDate);
+        return parsedDate;
+    } catch (DateTimeParseException e) {
+        System.err.println("Error parsing month and year: [" + rawText + "]");
+        System.err.println("Attempted to parse: [" + fixedText + "] with pattern: [MMMM yyyy]");
+        e.printStackTrace();
+        throw e; // Re-throw the exception for better error reporting
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+private LocalDate parseMonthYear(String rawText) {
+    System.out.println("Raw text received in parseMonthYear: [" + rawText + "]");
+    // Ensure space between month and year
+    String fixedText = rawText.replaceAll("(?i)(January|February|March|April|May|June|July|August|September|October|November|December)(\\d{4})", "$1 $2");
+    System.out.println("Fixed text after replaceAll: [" + fixedText + "]");
+
     DateTimeFormatter monthYearFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH); // Pattern to parse the fixedText
     LocalDate parsedDate = null;
     try {
