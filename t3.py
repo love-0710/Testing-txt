@@ -15,9 +15,13 @@ public void selectDRValue(String label, String dateRange) {
         System.out.println("The 'Date Range Field' has been clicked");
 
         // Split and parse the date range
-        String[] parts = dateRange.split("to");
-        String start = parts[0].trim();
-        String end = parts[1].trim();
+        String[] parts = dateRange.split("\\s+to\\s+");
+if (parts.length != 2) {
+    throw new RuntimeException("Invalid date range format. Expected 'MM/dd/yyyy to MM/dd/yyyy' but got: " + dateRange);
+}
+
+String start = parts[0].trim();
+String end = parts[1].trim();
 
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
         Date startDate = sdf.parse(start);
