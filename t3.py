@@ -4,6 +4,108 @@ private LocalDate parseMonthYear(String rawText) {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
     try {
+        return LocalDate.parse("01 " + fixedText, formatter);
+    } catch (DateTimeParseException e) {
+        System.err.println("Error parsing month and year: " + rawText);
+        throw e; // Re-throw the exception for better error reporting
+    }
+}
+
+
+
+Public void selectDateFromCalendar(String dateStr) throws Exception {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    LocalDate targetDate = LocalDate.parse(dateStr, formatter);
+
+    while (true) {
+        // Fetch current panels
+        WebElement leftPanel = driver.findElement(By.xpath("//*[@class='design2-customCalendar-range-part design2-customCalendar-range-left']"));
+        WebElement rightPanel = driver.findElement(By.xpath("//*[@class='design2-customCalendar-range-part design2-customCalendar-range-right']"));
+
+        String leftMonthYear = getMonthYearFromPanel(leftPanel);
+        String rightMonthYear = getMonthYearFromPanel(rightPanel);
+
+        // Correctly format the target month and year for comparison
+        DateTimeFormatter monthYearFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
+        String targetMonthYear = targetDate.format(monthYearFormatter).toUpperCase(); // Ensure case-insensitive comparison
+
+        String leftMonthYearUpper = leftMonthYear.toUpperCase();
+        String rightMonthYearUpper = rightMonthYear.toUpperCase();
+
+        // Check left panel
+        if (leftMonthYearUpper.equals(targetMonthYear)) {
+            clickDateInPanel(leftPanel, targetDate.getDayOfMonth());
+            return;
+        }
+
+        // Check right panel
+        if (rightMonthYearUpper.equals(targetMonthYear)) {
+            clickDateInPanel(rightPanel, targetDate.getDayOfMonth());
+            return;
+        }
+
+        // Navigate to correct month
+        // ... (rest of the navigation logic remains the same)
+    }
+}
+
+
+
+private void clickDateInPanel(WebElement panel, int day) {
+    String xpath = ".//div[@class='design2-customCalendar-date']/span[text()='" + day + "']";
+    List<WebElement> elements = panel.findElements(By.xpath(xpath));
+    if (!elements.isEmpty()) {
+        elements.get(0).click();
+    } else {
+        throw new NoSuchElementException("Date " + day + " not found in panel.");
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+private LocalDate parseMonthYear(String rawText) {
+    // Ensure space between month and year
+    String fixedText = rawText.replaceAll("(?i)(January|February|March|April|May|June|July|August|September|October|November|December)(\\d{4})", "$1 $2");
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
+    try {
         return LocalDate.parse("01 " + fixedText, DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.ENGLISH));
     } catch (DateTimeParseException e) {
         System.err.println("Error parsing month and year: " + rawText);
