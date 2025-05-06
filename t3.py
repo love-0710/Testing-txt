@@ -23,8 +23,6 @@ public void selectDRValue(String label, String startDate, String endDate) {
 
 
 
-
-
 public void selectDateFromCalendar(String dateStr) throws Exception {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
     LocalDate targetDate = LocalDate.parse(dateStr, formatter);
@@ -67,12 +65,22 @@ public void selectDateFromCalendar(String dateStr) throws Exception {
 
 
 
+
+
 private String getMonthYearFromPanel(WebElement panel) {
-    // Left panel month-year
-    return panel.findElement(By.xpath(".//div[@class='design2-customCalendar-header'])[1]")).getText().trim();
-    // Right panel month-year
-    // return panel.findElement(By.xpath(".//div[@class='design2-customCalendar-header'])[2]")).getText().trim();
+    String leftMonthYearXpath = "(//div[@class='design2-customCalendar-header'])[1]";  // Left panel
+    String rightMonthYearXpath = "(//div[@class='design2-customCalendar-header'])[2]"; // Right panel
+
+    try {
+        // Try to find the month-year from both panels
+        WebElement monthYearElement = panel.findElement(By.xpath(".//div[contains(@class,'design2-customCalendar-header')]"));
+        return monthYearElement.getText().trim();
+    } catch (NoSuchElementException e) {
+        // If the specific panel is not found, throw exception
+        throw new NoSuchElementException("Unable to extract month-year from panel.");
+    }
 }
+
 
 
 
@@ -86,6 +94,7 @@ private LocalDate parseMonthYear(String monthYear) {
 
 
 private void clickDateInPanel(WebElement panel, int day) {
+    // Update XPath to click the correct date from the panel
     String xpath = "(//div[@class='design2-customCalendar-body'])[1]//div[@class='design2-customCalendar-date']/span[text()='" + day + "']";
     List<WebElement> elements = panel.findElements(By.xpath(xpath));
     if (!elements.isEmpty()) {
