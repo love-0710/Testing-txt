@@ -4,7 +4,7 @@ private LocalDate parseMonthYear(String rawText) {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
     try {
-        return LocalDate.parse("01 " + fixedText, formatter);
+        return LocalDate.parse("01 " + fixedText, DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.ENGLISH));
     } catch (DateTimeParseException e) {
         System.err.println("Error parsing month and year: " + rawText);
         throw e; // Re-throw the exception for better error reporting
