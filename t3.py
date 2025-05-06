@@ -1,3 +1,72 @@
+private void clickDateInPanel(@NotNull WebElement panel, int day) {
+    String xpath = ".//div[@class='design2-customCalendar-date']/span[text()='" + day + "']";
+    List<WebElement> elements = panel.findElements(By.xpath(xpath));
+    if (!elements.isEmpty()) {
+        elements.get(0).click();
+    } else {
+        throw new NoSuchElementException("Date " + day + " not found in panel.");
+    }
+}
+
+
+Public void selectDateFromCalendar(String dateStr) throws Exception {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    LocalDate targetDate = LocalDate.parse(dateStr, formatter);
+
+    while (true) {
+        // Fetch current panels
+        WebElement leftPanel = driver.findElement(By.xpath("//*[@class='design2-customCalendar-range-part design2-customCalendar-range-left']"));
+        WebElement rightPanel = driver.findElement(By.xpath("//*[@class='design2-customCalendar-range-part design2-customCalendar-range-right']"));
+
+        String leftMonthYear = getMonthYearFromPanel(leftPanel);
+        String rightMonthYear = getMonthYearFromPanel(rightPanel);
+
+        // Correctly format the target month and year for comparison
+        DateTimeFormatter monthYearFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
+        String targetMonthYear = targetDate.format(monthYearFormatter).toUpperCase(); // Ensure case-insensitive comparison
+
+        String leftMonthYearUpper = leftMonthYear.toUpperCase();
+        String rightMonthYearUpper = rightMonthYear.toUpperCase();
+
+        // Check left panel
+        if (leftMonthYearUpper.equals(targetMonthYear)) {
+            clickDateInPanel(leftPanel, targetDate.getDayOfMonth());
+            return;
+        }
+
+        // Check right panel
+        if (rightMonthYearUpper.equals(targetMonthYear)) {
+            clickDateInPanel(rightPanel, targetDate.getDayOfMonth());
+            return;
+        }
+
+        // Navigate to correct month
+        if (targetDate.isBefore(parseMonthYear(leftMonthYear))) {
+            driver.findElement(By.xpath("//*[@class='design2-customCalendar-prev-month-btn']")).click(); // Go backward
+        } else {
+            driver.findElement(By.xpath("//*[@class='design2-customCalendar-next-month-btn']")).click(); // Go forward
+        }
+
+        Thread.sleep(300); // Optional short wait to allow calendar update
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 private LocalDate parseMonthYear(String rawText) {
     // Ensure space between month and year
     String fixedText = rawText.replaceAll("(?i)(January|February|March|April|May|June|July|August|September|October|November|December)(\\d{4})", "$1 $2");
