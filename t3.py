@@ -1,3 +1,28 @@
+private LocalDate parseMonthYear(String rawText) {
+    // Ensure space between month and year
+    String fixedText = rawText.replaceAll("(?i)(January|February|March|April|May|June|July|August|September|October|November|December)(\\d{4})", "$1 $2");
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
+    try {
+        return LocalDate.parse("01 " + fixedText, formatter);
+    } catch (DateTimeParseException e) {
+        System.err.println("Error parsing month and year: " + rawText);
+        throw e; // Re-throw the exception for better error reporting
+    }
+}
+
+
+
+
+
+
+
+String xpath = "(//div[@class='design2-customCalendar-body'])[1]//div[@class='design2-customCalendar-date']/span[text()='" + day + "']";
+
+
+
+
+
 public void selectDRValue(String label, String startDate, String endDate) {
     try {
         System.out.println("Raw Date Range Input: [" + startDate + " to " + endDate + "]");
