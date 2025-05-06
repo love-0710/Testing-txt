@@ -1,3 +1,138 @@
+public void selectDRValue(String label, String startDate, String endDate) {
+    try {
+        System.out.println("Raw Date Range Input: [" + startDate + " to " + endDate + "]");
+
+        // Step 1: Click the date picker field
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        WebElement dateInput = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@class='datepicker-base-input']")));
+        dateInput.click();
+        System.out.println("The 'Date Range Field' has been clicked");
+
+        // Step 2: Select Start Date
+        selectDateFromCalendar(startDate);
+
+        // Step 3: Select End Date
+        selectDateFromCalendar(endDate);
+
+    } catch (Exception e) {
+        throw new RuntimeException("Failed to select date range: " + e.getMessage(), e);
+    }
+}
+
+
+
+
+
+
+
+public void selectDateFromCalendar(String dateStr) throws Exception {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    LocalDate targetDate = LocalDate.parse(dateStr, formatter);
+
+    while (true) {
+        // Fetch current panels
+        WebElement leftPanel = driver.findElement(By.xpath("//*[@class='design2-customCalendar-range-part design2-customCalendar-range-left']"));
+        WebElement rightPanel = driver.findElement(By.xpath("//*[@class='design2-customCalendar-range-part design2-customCalendar-range-right']"));
+
+        String leftMonthYear = getMonthYearFromPanel(leftPanel);
+        String rightMonthYear = getMonthYearFromPanel(rightPanel);
+
+        String targetMonthYear = targetDate.getMonth().name().substring(0, 1) + targetDate.getMonth().name().substring(1).toLowerCase() + " " + targetDate.getYear();
+
+        // Check left panel
+        if (leftMonthYear.equalsIgnoreCase(targetMonthYear)) {
+            clickDateInPanel(leftPanel, targetDate.getDayOfMonth());
+            return;
+        }
+
+        // Check right panel
+        if (rightMonthYear.equalsIgnoreCase(targetMonthYear)) {
+            clickDateInPanel(rightPanel, targetDate.getDayOfMonth());
+            return;
+        }
+
+        // Navigate to correct month
+        if (targetDate.isBefore(parseMonthYear(leftMonthYear))) {
+            driver.findElement(By.xpath("//*[@class='design2-customCalendar-prev-month-btn']")).click(); // Go backward
+        } else {
+            driver.findElement(By.xpath("//*[@class='design2-customCalendar-next-month-btn']")).click(); // Go forward
+        }
+
+        Thread.sleep(300); // Optional short wait to allow calendar update
+    }
+}
+
+
+
+
+
+
+private String getMonthYearFromPanel(WebElement panel) {
+    // Left panel month-year
+    return panel.findElement(By.xpath(".//div[@class='design2-customCalendar-header'])[1]")).getText().trim();
+    // Right panel month-year
+    // return panel.findElement(By.xpath(".//div[@class='design2-customCalendar-header'])[2]")).getText().trim();
+}
+
+
+
+
+
+private LocalDate parseMonthYear(String monthYear) {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
+    return LocalDate.parse("01 " + monthYear, DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.ENGLISH));
+}
+
+
+
+private void clickDateInPanel(WebElement panel, int day) {
+    String xpath = "(//div[@class='design2-customCalendar-body'])[1]//div[@class='design2-customCalendar-date']/span[text()='" + day + "']";
+    List<WebElement> elements = panel.findElements(By.xpath(xpath));
+    if (!elements.isEmpty()) {
+        elements.get(0).click();
+    } else {
+        throw new NoSuchElementException("Date " + day + " not found in panel.");
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 System.out.println("Raw Date Range Input: [" + dateRange + "]");
 
 // Normalize all spaces to regular space
