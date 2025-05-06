@@ -86,9 +86,12 @@ private String getMonthYearFromPanel(WebElement panel) {
 
 
 
-private LocalDate parseMonthYear(String monthYear) {
+private LocalDate parseMonthYear(String rawText) {
+    // Ensure space between month and year
+    String fixedText = rawText.replaceAll("(?i)(January|February|March|April|May|June|July|August|September|October|November|December)(\\d{4})", "$1 $2");
+
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
-    return LocalDate.parse("01 " + monthYear, DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.ENGLISH));
+    return LocalDate.parse("01 " + fixedText, DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.ENGLISH));
 }
 
 
