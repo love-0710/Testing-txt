@@ -1,3 +1,44 @@
+
+// Proceed to verify based on the resolved options
+    List<WebElement> menuItems = driver.findElements(By.cssSelector(".dropdownMenuListBox .MenuItem"));
+
+    // Map text -> element
+    Map<String, WebElement> menuMap = new HashMap<>();
+    for (WebElement item : menuItems) {
+        String text = item.getText().trim();
+        menuMap.put(text, item);
+    }
+
+    // ✅ Validate enabled items
+    for (String label : expectedEnabled) {
+        WebElement el = menuMap.get(label);
+        Assert.assertNotNull("Expected enabled item not found: " + label, el);
+        boolean isDisabled = el.getAttribute("class").contains("disabledItem");
+        Assert.assertFalse("Expected '" + label + "' to be enabled, but it is disabled", isDisabled);
+    }
+
+    // ✅ Validate disabled items
+    for (String label : expectedDisabled) {
+        WebElement el = menuMap.get(label);
+        if (el == null) {
+            System.out.println("Disabled item '" + label + "' not found in DOM. Treated as disabled.");
+            continue;
+        }
+        boolean isDisabled = el.getAttribute("class").contains("disabledItem");
+        Assert.assertTrue("Expected '" + label + "' to be disabled, but it is enabled", isDisabled);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 Then verify dropdown options based on first row document status
 
 @Then("verify dropdown options based on first row document status")
