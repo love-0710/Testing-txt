@@ -1,3 +1,63 @@
+Then verify dropdown options based on first row document status
+
+@Then("verify dropdown options based on first row document status")
+public void verifyMenuForUndeleted() {
+    dmsAttributesPage.verifyDropdownForUndeletedUsingFirstRowStatus();
+}
+
+public void verifyDropdownForUndeletedUsingFirstRowStatus() {
+    // Step 1: Get the document status from the first row (2nd column of grid)
+    WebElement statusElement = driver.findElement(By.xpath("(//div[@class='dataGridCustomcell gridAnchor'])[2]"));
+    String docStatus = statusElement.getText().trim().toLowerCase(); // e.g. "upload", "duplicate", "deleted"
+    System.out.println("Status from first row: " + docStatus);
+
+    // Step 2: Define expected enabled and disabled items for each status
+    List<String> expectedEnabled;
+    List<String> expectedDisabled;
+
+    switch (docStatus) {
+        case "upload":
+            expectedEnabled = Arrays.asList("Upload Document", "Attributes", "View Document", "Delete");
+            expectedDisabled = Arrays.asList("Unpublish", "Duplicate");
+            break;
+
+        case "duplicate":
+            expectedEnabled = Arrays.asList("Attributes", "View Document", "Delete", "Duplicate");
+            expectedDisabled = Arrays.asList("Upload Document", "Unpublish");
+            break;
+
+        case "deleted":
+            expectedEnabled = Arrays.asList("View Document", "UnDelete");
+            expectedDisabled = Arrays.asList("Attributes", "Upload Document", "Duplicate", "Unpublish");
+            break;
+
+        default:
+            throw new IllegalStateException("Unknown or unsupported status: " + docStatus);
+    }
+
+    // Step 3: Click on the Action button to show the dropdown menu
+    WebElement actionButton = driver.findElement(By.xpath("//button[text()='Action']"));
+    actionButton.click();
+
+    // Step 4: Call the existing reusable menu verification method
+    verifyDropdownMenuOptions(expectedEnabled, expectedDisabled);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 public void verifyDropdownMenuOptions(List<String> expectedEnabled, List<String> expectedDisabled) {
     List<WebElement> menuItems = driver.findElements(By.cssSelector(".dropdownMenuListBox .MenuItem"));
 
