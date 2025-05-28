@@ -1,3 +1,47 @@
+public void verifyDropdownMenuOptions(List<String> expectedEnabled, List<String> expectedDisabled) {
+    List<WebElement> menuItems = driver.findElements(By.cssSelector(".dropdownMenuListBox .MenuItem"));
+
+    // Map menu text -> WebElement
+    Map<String, WebElement> menuMap = new HashMap<>();
+    for (WebElement item : menuItems) {
+        String text = item.getText().trim();
+        menuMap.put(text, item);
+    }
+
+    // ✅ Check enabled options (must exist and must not be disabled)
+    for (String label : expectedEnabled) {
+        WebElement el = menuMap.get(label);
+        Assert.assertNotNull("Expected enabled item not found: " + label, el);
+        boolean isDisabled = el.getAttribute("class").contains("disabledItem");
+        Assert.assertFalse("Expected '" + label + "' to be enabled, but it is disabled", isDisabled);
+    }
+
+    // ✅ Check disabled options (can be missing OR present with disabledItem class)
+    for (String label : expectedDisabled) {
+        WebElement el = menuMap.get(label);
+        if (el == null) {
+            System.out.println("Disabled item '" + label + "' is not in DOM. Treated as disabled.");
+            continue; // Consider not shown == not clickable
+        }
+        boolean isDisabled = el.getAttribute("class").contains("disabledItem");
+        Assert.assertTrue("Expected '" + label + "' to be disabled, but it is enabled", isDisabled);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
