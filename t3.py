@@ -1,3 +1,44 @@
+try {
+    comMethods.waitForSeconds(5);
+
+    String strLocator = "//*[contains(@class, '-fund-diagram-cell') and @style='border-color: rgb(75, 205, 62); ']";
+    List<WebElement> elements = driver.findElements(By.xpath(strLocator));
+
+    boolean isAnyDisplayed = false;
+    for (WebElement el : elements) {
+        if (el.isDisplayed()) {
+            isAnyDisplayed = true;
+            break;
+        }
+    }
+
+    if (isAnyDisplayed) {
+        log.info("Green Border lines for the Legal Entities were displayed");
+    } else {
+        log.error("Green Border lines for the Legal Entities were not displayed");
+        Assert.fail("Green Border lines for the Legal Entities were not displayed");
+    }
+
+} catch (Exception e) {
+    throw new RuntimeException(e);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 private void clickDateInPanel(@NotNull WebElement panel, int day) {
     String xpath = ".//div[@class='design2-customCalendar-date']/span[text()='" + day + "']";
     List<WebElement> elements = panel.findElements(By.xpath(xpath));
