@@ -1,3 +1,39 @@
+public void verifyErrorMessageFormat() {
+    try {
+        // XPath to locate element starting with "Error Messages (Showing:"
+        String xpath = "//*[contains(@class, 'tableTitleBar')]//*[starts-with(text(),'Error Messages (Showing:')]";
+
+        WebElement label = driver.findElement(By.xpath(xpath));
+        String text = label.getText().trim();
+
+        // Validate format using regex: "Error Messages (Showing: <num> of <num>)"
+        if (text.matches("^Error Messages \\(Showing: \\d+ of \\d+\\)$")) {
+            System.out.println("✅ Format is correct: " + text);
+        } else {
+            System.err.println("❌ Text found but format incorrect: " + text);
+            Assert.fail("Text format does not match expected pattern.");
+        }
+
+    } catch (NoSuchElementException e) {
+        System.err.println("❌ Error message label not found.");
+        Assert.fail("Error Messages label not found.");
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 public static void verifyRibbonBtn(String buttonName) {
     try {
         // Generalized XPath for ribbon buttons
