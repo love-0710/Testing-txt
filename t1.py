@@ -1,3 +1,36 @@
+public static void verifyRibbonBtn(String buttonName) {
+    try {
+        // Generalized XPath for ribbon buttons
+        String ribbonBtnXpath = "//*[@class='btnLeft']//*[text()='" + buttonName + "']";
+        WebElement ribbonBtn = driver.findElement(By.xpath(ribbonBtnXpath));
+
+        if (ribbonBtn.isDisplayed()) {
+            Log.info("✅ Ribbon button '" + buttonName + "' is visible on the page.");
+        } else {
+            Log.error("❌ Ribbon button '" + buttonName + "' is not visible on the page.");
+            Assert.fail("Ribbon button '" + buttonName + "' is not visible.");
+        }
+    } catch (NoSuchElementException e) {
+        Log.error("❌ Ribbon button '" + buttonName + "' not found in DOM. Exception: " + e.getMessage());
+        Assert.fail("Ribbon button '" + buttonName + "' not found.");
+    } catch (Exception e) {
+        Log.error("❌ Unexpected error while verifying Ribbon button '" + buttonName + "': " + e.getMessage());
+        throw new RuntimeException(e);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Proceed to verify based on the resolved options
     List<WebElement> menuItems = driver.findElements(By.cssSelector(".dropdownMenuListBox .MenuItem"));
