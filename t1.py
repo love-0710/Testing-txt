@@ -1,3 +1,154 @@
+Feature: Email Subject Validation from CSV
+
+  Scenario: Verify EmailSubject data from CSV exists in the UI and matches expected format
+    Then verify EmailSubject row from CSV in UI and check data format
+    
+    
+    @Then("verify EmailSubject row from CSV in UI and check data format")
+public void verifyEmailSubjectRow() {
+    String emailSubject = CSVUtils.getEmailSubjectFromCSV("path/to/TestData.csv");
+    DMSPage dmsPage = new DMSPage();
+    dmsPage.verifyEmailSubjectInUI(emailSubject);
+}
+
+
+
+
+csv
+import java.io.BufferedReader;
+import java.io.FileReader;
+
+public class CSVUtils {
+
+    public static String getEmailSubjectFromCSV(String filePath) {
+        String line;
+        String emailSubject = "";
+
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String[] headers = br.readLine().split(",");
+            int emailIndex = -1;
+
+            // Find index of "EmailSubject"
+            for (int i = 0; i < headers.length; i++) {
+                if (headers[i].trim().equalsIgnoreCase("EmailSubject")) {
+                    emailIndex = i;
+                    break;
+                }
+            }
+
+            if (emailIndex == -1) {
+                throw new RuntimeException("EmailSubject column not found in CSV.");
+            }
+
+            // Read first data row
+            if ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                emailSubject = data[emailIndex].trim();
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error reading CSV: " + e.getMessage());
+        }
+
+        return emailSubject;
+    }
+}
+
+
+
+
+public void verifyEmailSubjectInUI(String expectedSubject) {
+    try {
+        String rowXpath = "//*[@class='gridTable']//tr";
+        List<WebElement> rows = driver.findElements(By.xpath(rowXpath));
+        boolean matchFound = false;
+
+        for (WebElement row : rows) {
+            String rowText = row.getText().trim();
+            if (rowText.contains(expectedSubject)) {
+                matchFound = true;
+                System.out.println("✅ EmailSubject found in UI: " + expectedSubject);
+
+                List<WebElement> columns = row.findElements(By.tagName("td"));
+
+                // 🟩 0: EmailSubject — must match
+                String emailSubjectCol = columns.get(0).getText().trim();
+                Assert.assertEquals("❌ EmailSubject mismatch", expectedSubject, emailSubjectCol);
+
+                // 🟩 1: Sender — must NOT be empty
+                String senderCol = columns.get(1).getText().trim();
+                Assert.assertFalse("❌ Sender column is empty", senderCol.isEmpty());
+
+                // 🟨 2: Status — can be empty/null
+                String statusCol = columns.get(2).getText().trim();
+                if (statusCol.isEmpty()) {
+                    System.out.println("⚠️ Status column is empty — allowed.");
+                } else {
+                    System.out.println("✅ Status column: " + statusCol);
+                }
+
+                // 🟦 3: Timestamp — any value is okay
+                String timestampCol = columns.get(3).getText().trim();
+                System.out.println("🔁 Timestamp: " + timestampCol);
+
+                // 🟥 4: Attachment — must be "Yes"
+                String attachmentCol = columns.get(4).getText().trim();
+                Assert.assertEquals("❌ Attachment should be 'Yes'", "Yes", attachmentCol);
+
+                System.out.println("✅ Row data format validation passed.");
+                break;
+            }
+        }
+
+        if (!matchFound) {
+            Assert.fail("❌ EmailSubject not found in UI: " + expectedSubject);
+        }
+
+    } catch (Exception e) {
+        throw new RuntimeException("Error verifying row format: " + e.getMessage());
+    }
+}
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
