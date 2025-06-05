@@ -1,3 +1,55 @@
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+public void runBatchFileForNewData() {
+    log.info("Creating new data...");
+    
+    try {
+        // Absolute or relative path to your .bat file
+        File batFile = new File("src/test/resources/PMMTestDataSetup/runMail_With_Encrypted_Data.bat");
+        
+        // Ensure the file exists
+        if (!batFile.exists()) {
+            log.error("Batch file not found at: " + batFile.getAbsolutePath());
+            return;
+        }
+
+        // Use ProcessBuilder
+        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", batFile.getAbsolutePath());
+
+        // Optional: set working directory (helps if your .bat uses relative paths)
+        builder.directory(batFile.getParentFile());
+
+        // Start the process
+        Process process = builder.start();
+
+        // Wait for it to finish (max 10 seconds)
+        boolean finished = process.waitFor(10, TimeUnit.SECONDS);
+        if (!finished) {
+            log.warn("Batch file did not complete within timeout.");
+        }
+
+        log.info("Done new data.");
+
+    } catch (Exception e) {
+        log.error("Issue in creating new data", e);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 echo Current path: %cd%
 echo Trying to run: src\test\resources\sendMail.vbs
