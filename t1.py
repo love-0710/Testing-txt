@@ -1,5 +1,64 @@
 public void verifyEmailSubjectInUI(String expectedSubject) {
     try {
+        // Step 1: Locate the element with the Email Subject
+        String subjectXpath = "//div[@class='dataGridCustomCell']//*[text()='" + expectedSubject + "']";
+        List<WebElement> subjectElements = driver.findElements(By.xpath(subjectXpath));
+
+        if (subjectElements.isEmpty()) {
+            Assert.fail("Email Subject not found in UI: " + expectedSubject);
+        }
+
+        boolean matchFound = false;
+
+        for (WebElement subjectElement : subjectElements) {
+            // Step 2: Get the row containing this subject
+            WebElement row = subjectElement.findElement(By.xpath("./ancestor::div[contains(@class, 'dataGridRow')]"));
+            String rowText = row.getText().trim();
+
+            // Step 3: Check if the expected values exist in the row text (in any order)
+            if (rowText.contains(expectedSubject) &&
+                rowText.contains("Pooling Errors") &&
+                rowText.contains("Email") &&
+                rowText.contains("PMM_U1") &&
+                rowText.contains("Resolve") &&
+                rowText.contains("0")) {
+
+                matchFound = true;
+                System.out.println("All expected values found in row for Email Subject: " + expectedSubject);
+                break;
+            }
+        }
+
+        if (!matchFound) {
+            Assert.fail("Email Subject found but expected values are missing in the same row for: " + expectedSubject);
+        }
+
+    } catch (Exception e) {
+        throw new RuntimeException("Error verifying row format: " + e.getMessage());
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public void verifyEmailSubjectInUI(String expectedSubject) {
+    try {
         // Step 1: First check if the Email Subject exists anywhere in the UI
         String subjectXpath = "//div[@class='dataGridCustomCell']//*[text()='" + expectedSubject + "']";
         List<WebElement> subjectElements = driver.findElements(By.xpath(subjectXpath));
