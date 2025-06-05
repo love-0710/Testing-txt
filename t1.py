@@ -1,4 +1,11 @@
 @echo off
+cd /d "%~dp0"
+cscript //nologo "src\test\resources\sendMail.vbs"
+
+
+
+
+@echo off
 setlocal
 
 :: Set the full path to the VBScript file relative to the batch file
