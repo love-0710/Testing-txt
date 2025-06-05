@@ -1,3 +1,98 @@
+public void verifyEmailSubjectInUI(String expectedSubject) {
+    try {
+        // Locate the row that contains the expected Email Subject
+        String rowXpath = "//div[@class='dataGridCustomCell']//*[text()='" + expectedSubject + "']/ancestor::div[contains(@class, 'dataGridRow')]";
+        List<WebElement> rows = driver.findElements(By.xpath(rowXpath));
+
+        boolean matchFound = false;
+
+        for (WebElement row : rows) {
+            String rowText = row.getText().trim();
+            if (rowText.contains(expectedSubject)) {
+                matchFound = true;
+                System.out.println("EmailSubject found in UI: " + expectedSubject);
+
+                // Get all columns inside this row
+                List<WebElement> columns = row.findElements(By.xpath(".//div[contains(@class, 'dataGridCustomCell')]"));
+
+                // Column 0: Email Received date/time - must NOT be empty
+                String receivedDateTime = columns.get(0).getText().trim();
+                Assert.assertFalse("Email Received date/time is empty", receivedDateTime.isEmpty());
+
+                // Column 1: Email Status - must be 'Pooling Errors'
+                String status = columns.get(1).getText().trim();
+                Assert.assertEquals("Email Status mismatch", "Pooling Errors", status);
+
+                // Column 2: Source - must be 'Email'
+                String source = columns.get(2).getText().trim();
+                Assert.assertEquals("Source mismatch", "Email", source);
+
+                // Column 3: Mailbox - must be 'PMM_U1'
+                String mailbox = columns.get(3).getText().trim();
+                Assert.assertEquals("Mailbox mismatch", "PMM_U1", mailbox);
+
+                // Column 4: Email Subject - must match test data
+                String subject = columns.get(4).getText().trim();
+                Assert.assertEquals("Email Subject mismatch", expectedSubject, subject);
+
+                // Column 5: Sender Email - should not be empty
+                String sender = columns.get(5).getText().trim();
+                Assert.assertFalse("Sender Email is empty", sender.isEmpty());
+
+                // Column 6: Error - should not be empty
+                String error = columns.get(6).getText().trim();
+                Assert.assertFalse("Error column is empty", error.isEmpty());
+
+                // Column 7: Polling Error Resolved By - must be 'Resolve'
+                String resolvedBy = columns.get(7).getText().trim();
+                Assert.assertEquals("Polling Error Resolved By mismatch", "Resolve", resolvedBy);
+
+                // Column 8: Polling Error Resolved Date/Time - must be '0'
+                String resolvedDateTime = columns.get(8).getText().trim();
+                Assert.assertEquals("Polling Error Resolved Date/Time mismatch", "0", resolvedDateTime);
+
+                // Column 9: Comments - must be empty
+                String comments = columns.get(9).getText().trim();
+                Assert.assertTrue("Comments should be empty", comments.isEmpty());
+
+                System.out.println("Row data format validation passed for EmailSubject: " + expectedSubject);
+                break;
+            }
+        }
+
+        if (!matchFound) {
+            Assert.fail("EmailSubject not found in UI: " + expectedSubject);
+        }
+
+    } catch (Exception e) {
+        throw new RuntimeException("Error verifying row format: " + e.getMessage());
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Feature: Email Subject Validation from CSV
 
   Scenario: Verify EmailSubject data from CSV exists in the UI and matches expected format
