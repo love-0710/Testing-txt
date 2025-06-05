@@ -1,3 +1,10 @@
+
+echo Current path: %cd%
+echo Trying to run: src\test\resources\sendMail.vbs
+pause
+
+
+
 @echo off
 cd /d "%~dp0"
 cscript //nologo "src\test\resources\sendMail.vbs"
