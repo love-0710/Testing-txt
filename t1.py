@@ -1,5 +1,67 @@
 public void verifyEmailSubjectInUI(String expectedSubject) {
     try {
+        String subjectXpath = "//div[@class='dataGridCustomCell']//*[text()='" + expectedSubject + "']";
+        List<WebElement> subjectElements = driver.findElements(By.xpath(subjectXpath));
+
+        if (subjectElements.isEmpty()) {
+            Assert.fail("Email Subject not found in UI: " + expectedSubject);
+        }
+
+        boolean matchFound = false;
+
+        for (WebElement subjectElement : subjectElements) {
+            WebElement row = subjectElement.findElement(By.xpath("./ancestor::div[contains(@class, 'dataGridRow')]"));
+
+            // Get all visible text values from each cell of this row
+            List<WebElement> columns = row.findElements(By.xpath(".//div[contains(@class, 'dataGridCustomCell')]"));
+            List<String> cellValues = new ArrayList<>();
+            for (WebElement cell : columns) {
+                cellValues.add(cell.getText().trim());
+            }
+
+            // Check if all expected values are in the cell values list
+            if (cellValues.contains(expectedSubject) &&
+                cellValues.contains("Pooling Errors") &&
+                cellValues.contains("Email") &&
+                cellValues.contains("PMM_U1") &&
+                cellValues.contains("Resolve") &&
+                cellValues.contains("0")) {
+
+                matchFound = true;
+                System.out.println("All expected values found in row for Email Subject: " + expectedSubject);
+                break;
+            } else {
+                System.out.println("Row found but values missing: " + cellValues);
+            }
+        }
+
+        if (!matchFound) {
+            Assert.fail("Email Subject found but expected values are missing in the same row for: " + expectedSubject);
+        }
+
+    } catch (Exception e) {
+        throw new RuntimeException("Error verifying row format: " + e.getMessage());
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public void verifyEmailSubjectInUI(String expectedSubject) {
+    try {
         // Step 1: Locate the element with the Email Subject
         String subjectXpath = "//div[@class='dataGridCustomCell']//*[text()='" + expectedSubject + "']";
         List<WebElement> subjectElements = driver.findElements(By.xpath(subjectXpath));
