@@ -1,3 +1,21 @@
+@echo off
+setlocal
+
+:: Set the full path to the VBScript file relative to the batch file
+set "SCRIPT_PATH=%~dp0src\test\resources\sendMail.vbs"
+
+:: Run the VBScript with cscript
+cscript //nologo "%SCRIPT_PATH%"
+
+endlocal
+
+
+
+
+
+
+
+
 public void verifyErrorMessageFormat() {
     try {
         // XPath to locate element starting with "Error Messages (Showing:"
