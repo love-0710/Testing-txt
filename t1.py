@@ -1,5 +1,98 @@
 public void verifyEmailSubjectInUI(String expectedSubject) {
     try {
+        // Step 1: First check if the Email Subject exists anywhere in the UI
+        String subjectXpath = "//div[@class='dataGridCustomCell']//*[text()='" + expectedSubject + "']";
+        List<WebElement> subjectElements = driver.findElements(By.xpath(subjectXpath));
+
+        if (subjectElements.isEmpty()) {
+            Assert.fail("EmailSubject text not found in UI: " + expectedSubject);
+        }
+
+        // Step 2: For each matched element, locate its parent row
+        boolean matchFound = false;
+
+        for (WebElement subjectElement : subjectElements) {
+            WebElement row = subjectElement.findElement(By.xpath("./ancestor::div[contains(@class, 'dataGridRow')]"));
+
+            List<WebElement> columns = row.findElements(By.xpath(".//div[contains(@class, 'dataGridCustomCell')]"));
+            if (columns.size() < 10) {
+                throw new RuntimeException("Unexpected number of columns found in row. Expected 10, found: " + columns.size());
+            }
+
+            // Column 0: Email Received date/time - must NOT be empty
+            String receivedDateTime = columns.get(0).getText().trim();
+            Assert.assertFalse("Email Received date/time is empty", receivedDateTime.isEmpty());
+
+            // Column 1: Email Status - must be 'Pooling Errors'
+            String status = columns.get(1).getText().trim();
+            Assert.assertEquals("Email Status mismatch", "Pooling Errors", status);
+
+            // Column 2: Source - must be 'Email'
+            String source = columns.get(2).getText().trim();
+            Assert.assertEquals("Source mismatch", "Email", source);
+
+            // Column 3: Mailbox - must be 'PMM_U1'
+            String mailbox = columns.get(3).getText().trim();
+            Assert.assertEquals("Mailbox mismatch", "PMM_U1", mailbox);
+
+            // Column 4: Email Subject - must match test data
+            String subject = columns.get(4).getText().trim();
+            Assert.assertEquals("Email Subject mismatch", expectedSubject, subject);
+
+            // Column 5: Sender Email - should not be empty
+            String sender = columns.get(5).getText().trim();
+            Assert.assertFalse("Sender Email is empty", sender.isEmpty());
+
+            // Column 6: Error - should not be empty
+            String error = columns.get(6).getText().trim();
+            Assert.assertFalse("Error column is empty", error.isEmpty());
+
+            // Column 7: Polling Error Resolved By - must be 'Resolve'
+            String resolvedBy = columns.get(7).getText().trim();
+            Assert.assertEquals("Polling Error Resolved By mismatch", "Resolve", resolvedBy);
+
+            // Column 8: Polling Error Resolved Date/Time - must be '0'
+            String resolvedDateTime = columns.get(8).getText().trim();
+            Assert.assertEquals("Polling Error Resolved Date/Time mismatch", "0", resolvedDateTime);
+
+            // Column 9: Comments - must be empty
+            String comments = columns.get(9).getText().trim();
+            Assert.assertTrue("Comments should be empty", comments.isEmpty());
+
+            System.out.println("Row data format validation passed for EmailSubject: " + expectedSubject);
+            matchFound = true;
+            break;
+        }
+
+        if (!matchFound) {
+            Assert.fail("EmailSubject found as text, but row data did not validate: " + expectedSubject);
+        }
+
+    } catch (Exception e) {
+        throw new RuntimeException("Error verifying EmailSubject row: " + e.getMessage());
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public void verifyEmailSubjectInUI(String expectedSubject) {
+    try {
         // Locate the row that contains the expected Email Subject
         String rowXpath = "//div[@class='dataGridCustomCell']//*[text()='" + expectedSubject + "']/ancestor::div[contains(@class, 'dataGridRow')]";
         List<WebElement> rows = driver.findElements(By.xpath(rowXpath));
