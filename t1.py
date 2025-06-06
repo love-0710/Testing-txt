@@ -1,5 +1,81 @@
 public void verifyEmailSubjectInUI(String expectedSubject) {
     try {
+        // 1. Find all elements matching the Email Subject
+        List<WebElement> subjectElements = driver.findElements(
+                By.xpath("//div[@class='dataGridCustomCell']//*[text()='" + expectedSubject + "']")
+        );
+
+        if (subjectElements.isEmpty()) {
+            Assert.fail("❌ Email Subject not found in UI: " + expectedSubject);
+        }
+
+        boolean matchFound = false;
+
+        for (WebElement subjectElement : subjectElements) {
+            // 2. Get the full row for this Email Subject
+            WebElement row = subjectElement.findElement(
+                    By.xpath("./ancestor::div[contains(@class, 'dataGridRow')]")
+            );
+
+            // 3. Check for required values in the same row (scoped XPath with dot prefix)
+            boolean mailboxPresent = !row.findElements(By.xpath(".//div[contains(@class,'dataGridCustomCell')]//*[text()='PMM_U1']")).isEmpty();
+            boolean statusPresent = !row.findElements(By.xpath(".//div[contains(@class,'dataGridCustomCell')]//*[text()='Polling Errors']")).isEmpty();
+            boolean sourcePresent = !row.findElements(By.xpath(".//div[contains(@class,'dataGridCustomCell')]//*[text()='Email']")).isEmpty();
+            boolean resolvedByPresent = !row.findElements(By.xpath(".//div[contains(@class,'dataGridCustomCell')]//*[text()='Resolve']")).isEmpty();
+            boolean resolvedDateTimePresent = !row.findElements(By.xpath(".//div[contains(@class,'dataGridCustomCell')]//*[text()='0']")).isEmpty();
+
+            // 4. Debug log
+            System.out.println("🔍 Verifying row for Email Subject: " + expectedSubject);
+            System.out.println(" - PMM_U1 present: " + mailboxPresent);
+            System.out.println(" - Polling Errors present: " + statusPresent);
+            System.out.println(" - Source (Email) present: " + sourcePresent);
+            System.out.println(" - Resolve present: " + resolvedByPresent);
+            System.out.println(" - 0 (DateTime) present: " + resolvedDateTimePresent);
+
+            // 5. If all are found in the same row, mark it as valid
+            if (mailboxPresent && statusPresent && sourcePresent && resolvedByPresent && resolvedDateTimePresent) {
+                matchFound = true;
+                System.out.println("✅ All required values found in the same row as Email Subject: " + expectedSubject);
+                break;
+            }
+        }
+
+        if (!matchFound) {
+            Assert.fail("❌ Email Subject found, but required values NOT found in the same row.");
+        }
+
+    } catch (Exception e) {
+        throw new RuntimeException("🚨 Error verifying row format: " + e.getMessage(), e);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public void verifyEmailSubjectInUI(String expectedSubject) {
+    try {
         // Locate the Email Subject element
         String subjectXpath = "//div[@class='dataGridCustomCell']//*[text()='" + expectedSubject + "']";
         List<WebElement> subjectElements = driver.findElements(By.xpath(subjectXpath));
