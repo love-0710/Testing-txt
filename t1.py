@@ -1,5 +1,71 @@
 public void verifyEmailSubjectInUI(String expectedSubject) {
     try {
+        // Locate the Email Subject element
+        String subjectXpath = "//div[@class='dataGridCustomCell']//*[text()='" + expectedSubject + "']";
+        List<WebElement> subjectElements = driver.findElements(By.xpath(subjectXpath));
+
+        if (subjectElements.isEmpty()) {
+            Assert.fail("Email Subject not found in UI: " + expectedSubject);
+        }
+
+        boolean allValuesMatched = false;
+
+        for (WebElement subjectElement : subjectElements) {
+            // Get the full row of this Email Subject
+            WebElement row = subjectElement.findElement(By.xpath("./ancestor::div[contains(@class, 'dataGridRow')]"));
+
+            // Now validate presence of other required texts in the same row using contains()
+            boolean mailboxPresent = !row.findElements(By.xpath(".//*[contains(text(), 'PMM_U1')]")).isEmpty();
+            boolean statusPresent = !row.findElements(By.xpath(".//*[contains(text(), 'Pooling Errors')]")).isEmpty();
+            boolean sourcePresent = !row.findElements(By.xpath(".//*[contains(text(), 'Email')]")).isEmpty();
+            boolean resolvedByPresent = !row.findElements(By.xpath(".//*[contains(text(), 'Resolve')]")).isEmpty();
+            boolean resolvedDateTimePresent = !row.findElements(By.xpath(".//*[contains(text(), '0')]")).isEmpty();
+
+            if (mailboxPresent && statusPresent && sourcePresent && resolvedByPresent && resolvedDateTimePresent) {
+                allValuesMatched = true;
+                System.out.println("✅ All required values found in the same row as Email Subject: " + expectedSubject);
+                break;
+            } else {
+                System.out.println("⛔ Row found for Email Subject but some values missing.");
+            }
+        }
+
+        if (!allValuesMatched) {
+            Assert.fail("Email Subject found, but required values not found in the same row.");
+        }
+
+    } catch (Exception e) {
+        throw new RuntimeException("Error verifying row content: " + e.getMessage());
+    }
+}
+
+
+
+String comments = row.findElement(By.xpath(".//div[10]")).getText().trim();
+boolean isEmpty = comments.isEmpty();
+
+
+
+boolean hasValue = !row.findElements(By.xpath(".//div[normalize-space(text()) != '']")).isEmpty();
+Assert.assertTrue("Column should not be empty", hasValue);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public void verifyEmailSubjectInUI(String expectedSubject) {
+    try {
         String subjectXpath = "//div[@class='dataGridCustomCell']//*[text()='" + expectedSubject + "']";
         List<WebElement> subjectElements = driver.findElements(By.xpath(subjectXpath));
 
