@@ -12,6 +12,96 @@ public void verifyEmailSubjectInUI(String expectedSubject) {
         boolean matchFound = false;
 
         for (WebElement subjectElement : subjectElements) {
+            // 2. Get the parent row containing this email subject
+            WebElement row = subjectElement.findElement(
+                    By.xpath("./ancestor::div[contains(@class, 'dataGridRow')]")
+            );
+
+            // 3. Extract trimmed text from expected cells in the SAME row
+            String mailbox = getTrimmedText(row, ".//div[contains(@class,'dataGridCustomCell')]//*[contains(text(),'PMM_U1')]");
+            String status = getTrimmedText(row, ".//div[contains(@class,'dataGridCustomCell')]//*[contains(text(),'Polling Errors')]");
+            String source = getTrimmedText(row, ".//div[contains(@class,'dataGridCustomCell')]//*[contains(text(),'Email')]");
+            String resolve = getTrimmedText(row, ".//div[contains(@class,'dataGridCustomCell')]//*[contains(text(),'Resolve')]");
+            String dateTime = getTrimmedText(row, ".//div[contains(@class,'dataGridCustomCell')]//*[contains(text(),'0')]");
+
+            // 4. Logging for debugging
+            System.out.println("🔍 Found row for Email Subject: " + expectedSubject);
+            System.out.println(" - PMM_U1: " + mailbox);
+            System.out.println(" - Polling Errors: " + status);
+            System.out.println(" - Email: " + source);
+            System.out.println(" - Resolve: " + resolve);
+            System.out.println(" - 0: " + dateTime);
+
+            // 5. Check if all expected values match exactly (case-sensitive)
+            if ("PMM_U1".equals(mailbox) &&
+                "Polling Errors".equals(status) &&
+                "Email".equals(source) &&
+                "Resolve".equals(resolve) &&
+                "0".equals(dateTime)) {
+
+                matchFound = true;
+                System.out.println("✅ All required values matched in same row.");
+                break;
+            }
+        }
+
+        if (!matchFound) {
+            Assert.fail("❌ Email Subject found, but expected values were NOT all present in the same row.");
+        }
+
+    } catch (Exception e) {
+        throw new RuntimeException("🚨 Error while verifying Email Subject row: " + e.getMessage(), e);
+    }
+}
+
+// Helper method to extract and trim text from relative XPath
+private String getTrimmedText(WebElement parent, String relativeXpath) {
+    try {
+        WebElement el = parent.findElement(By.xpath(relativeXpath));
+        return el.getText().trim();
+    } catch (NoSuchElementException e) {
+        return ""; // return empty if not found
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public void verifyEmailSubjectInUI(String expectedSubject) {
+    try {
+        // 1. Find all elements matching the Email Subject
+        List<WebElement> subjectElements = driver.findElements(
+                By.xpath("//div[@class='dataGridCustomCell']//*[text()='" + expectedSubject + "']")
+        );
+
+        if (subjectElements.isEmpty()) {
+            Assert.fail("❌ Email Subject not found in UI: " + expectedSubject);
+        }
+
+        boolean matchFound = false;
+
+        for (WebElement subjectElement : subjectElements) {
             // 2. Get the full row for this Email Subject
             WebElement row = subjectElement.findElement(
                     By.xpath("./ancestor::div[contains(@class, 'dataGridRow')]")
