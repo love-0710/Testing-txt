@@ -1,3 +1,52 @@
+public void handleMyRecentlyViewedDropdown() {
+    try {
+        // XPath for the dropdown "My Recently Viewed"
+        By dropdownLocator = By.xpath("//div[@class='investran-ui-panel-commands-dropdown']//*[text()='My Recently Viewed']");
+
+        // Check if the dropdown exists
+        List<WebElement> dropdowns = driver.findElements(dropdownLocator);
+
+        if (!dropdowns.isEmpty()) {
+            System.out.println("🔽 'My Recently Viewed' dropdown found. Proceeding to click...");
+
+            // Click the dropdown
+            dropdowns.get(0).click();
+            Thread.sleep(1000); // Optional wait for dropdown to expand
+
+            // Click the "All" option
+            WebElement allOption = driver.findElement(By.xpath("//span[@class='investran-ui-panel-command-title ng-binding' and text()='All']"));
+            allOption.click();
+            System.out.println("✅ Clicked on 'All' option.");
+
+            // Wait and click the "Yes" button on confirmation dialog
+            WebElement yesButton = driver.findElement(By.xpath("//div[@class='fis-primary-block']//button[@fis-unique-id='dialog button ok' and text()='Yes']"));
+            yesButton.click();
+            System.out.println("✅ Clicked 'Yes' button to confirm.");
+
+        } else {
+            System.out.println("⚠️ 'My Recently Viewed' dropdown not found. Skipping dropdown handling.");
+        }
+
+    } catch (Exception e) {
+        throw new RuntimeException("🚨 Error handling 'My Recently Viewed' dropdown: " + e.getMessage(), e);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import org.openqa.selenium.By
 import java.time.Duration
 import org.openqa.selenium.support.ui.WebDriverWait
