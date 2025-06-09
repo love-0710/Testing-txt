@@ -1,3 +1,34 @@
+public void clickOkIfVisible() {
+    try {
+        By okButtonLocator = By.xpath("//div[@class='fis-primary-block']//*[text()='Ok']");
+
+        List<WebElement> okButtons = driver.findElements(okButtonLocator);
+
+        if (!okButtons.isEmpty() && okButtons.get(0).isDisplayed()) {
+            okButtons.get(0).click();
+            System.out.println("✅ 'Ok' button clicked.");
+        } else {
+            System.out.println("ℹ️ 'Ok' button not visible. Skipping click.");
+        }
+
+    } catch (Exception e) {
+        throw new RuntimeException("🚨 Error while checking/clicking 'Ok' button: " + e.getMessage(), e);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 public void handleMyRecentlyViewedDropdown() {
     try {
         // XPath for the dropdown "My Recently Viewed"
