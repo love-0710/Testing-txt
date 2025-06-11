@@ -1,4 +1,46 @@
 try {
+    // Try to find and click the "My Recently Viewed" dropdown
+    try {
+        WebElement dropdown = driver.findElement(By.xpath("(//div[@class='investran-ui-panel-commands-dropdown']//*[text()='My Recently Viewed'])[1]"));
+        dropdown.click();
+        System.out.println("'My Recently Viewed' dropdown clicked.");
+
+        Thread.sleep(1000); // Optional wait for dropdown to expand
+
+        // Click the "All" option
+        WebElement allOption = driver.findElement(By.xpath("//span[@class='investran-ui-panel-command-title ng-binding' and text()='All']"));
+        allOption.click();
+        System.out.println("'All' option clicked.");
+
+        // Click the "Yes" button on confirmation dialog
+        WebElement yesButton = driver.findElement(By.xpath("//div[@class='fis-primary-block']//button[@fis-unique-id='dialog button ok' and text()='Yes']"));
+        yesButton.click();
+        System.out.println("'Yes' button clicked to confirm.");
+
+    } catch (org.openqa.selenium.NoSuchElementException e) {
+        System.out.println("'My Recently Viewed' dropdown not found. Skipping dropdown-related steps.");
+    }
+
+} catch (Exception e) {
+    throw new RuntimeException("Error during dropdown handling: " + e.getMessage(), e);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+try {
     comMethods.waitForSeconds(5);
 
     String strLocator = "//*[contains(@class, '-fund-diagram-cell') and @style='border-color: rgb(75, 205, 62); ']";
