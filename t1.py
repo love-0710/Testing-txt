@@ -1,3 +1,51 @@
+from transformers import AutoTokenizer, AutoModelForCausalLM
+import os
+import shutil
+
+# Model name on Hugging Face
+model_name = "microsoft/Phi-3-mini-4k-instruct"
+
+# Where to save locally
+save_dir = "phi3_model"
+
+print("Downloading Phi-3-mini-4k-instruct...")
+
+# Download model + tokenizer
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_name)
+
+# Save to local folder
+if os.path.exists(save_dir):
+    shutil.rmtree(save_dir)  # clean if exists
+
+tokenizer.save_pretrained(save_dir)
+model.save_pretrained(save_dir)
+
+print(f"✅ Model saved in folder: {save_dir}")
+print("Now you can zip 'phi3_model' and upload to GitHub.")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 public void verifyEmailSubjectInUI(String expectedSubject) {
     try {
         // 1. Find all elements matching the Email Subject
